@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customerservice-deployment
+spec:
+  selector:
+    matchLabels:
+      app: customerservice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: customerservice
+    spec:
+      containers:
+        - name: customerservice
+          image: emreoytun/customerservice:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083  # Updated to match the application's port
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customerservice-ssvc
+spec:
+  selector:
+    app: customerservice
+  ports:
+    - protocol: "TCP"
+      port: 80             # Port exposed by the service
+      targetPort: 8083     # Port on which the application is listening
+  type: LoadBalancer
