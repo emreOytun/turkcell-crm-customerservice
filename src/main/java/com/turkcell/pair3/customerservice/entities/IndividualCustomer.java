@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "individual_customer")
@@ -17,7 +16,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class IndividualCustomer extends Customer{
+public class IndividualCustomer extends Customer {
 
     @Column(name = "nationality_id", nullable = false)
     private String nationalityId;
