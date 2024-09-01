@@ -1,10 +1,10 @@
 package com.turkcell.pair3.customerservice.services.abstracts;
 
-import com.turkcell.pair3.customerservice.core.business.paging.SearchByPageRequest;
+import com.turkcell.pair3.core.dtos.requests.SearchByPageRequest;
 import com.turkcell.pair3.customerservice.services.dtos.requests.IndividualCustomerAddRequest;
 import com.turkcell.pair3.customerservice.services.dtos.requests.IndividualCustomerContactUpdateRequest;
-import com.turkcell.pair3.customerservice.services.dtos.requests.IndividualCustomerUpdateRequest;
 import com.turkcell.pair3.customerservice.services.dtos.requests.IndividualCustomerSearchRequest;
+import com.turkcell.pair3.customerservice.services.dtos.requests.IndividualCustomerUpdateRequest;
 import com.turkcell.pair3.customerservice.services.dtos.responses.*;
 
 import java.util.List;

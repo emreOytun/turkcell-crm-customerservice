@@ -1,6 +1,6 @@
 package com.turkcell.pair3.customerservice.services.concretes;
 
-import com.turkcell.pair3.core.exception.types.BusinessException;
+import com.turkcell.pair3.core.exception.types.BusinessExceptionFactory;
 import com.turkcell.pair3.customerservice.entities.Address;
 import com.turkcell.pair3.customerservice.repositories.AddressRepository;
 import com.turkcell.pair3.customerservice.services.abstracts.AddressService;
@@ -9,11 +9,9 @@ import com.turkcell.pair3.customerservice.services.dtos.requests.AddressUpdateRe
 import com.turkcell.pair3.customerservice.services.dtos.responses.AddressUpdateResponse;
 import com.turkcell.pair3.customerservice.services.mapper.AddressMapper;
 import com.turkcell.pair3.customerservice.services.messages.AddressMessages;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -24,64 +22,46 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public Integer save(AddressAddRequest request) {
         Address address = AddressMapper.INSTANCE.addressFromAddRequest(request);
-        boolean exist = addressRepository.existsPrimaryAddressByCustomerId(address.getCustomer().getId());
-        if(!exist) address.setPrimary(true);
-
-        address = addressRepository.save(address);
-
-        return address.getId();
+        if (!addressRepository.existsPrimaryAddressByCustomerId(address.getCustomer().getId())) {
+            address.setPrimary(true);
+        }
+        return addressRepository.save(address).getId();
     }
 
     @Override
-    public void delete(Integer id){
-
-        Optional<Address> address = addressRepository.findById(id);
-
-        if(address.isEmpty()){
-            throw new BusinessException(AddressMessages.NO_ADDRESS_FOUND);
-        }
-
-        addressRepository.delete(address.get());
+    public void delete(Integer id) {
+        checkIfAddressExistsOrThrowException(id);
+        addressRepository.deleteById(id);
     }
 
     @Override
-    public AddressUpdateResponse update(int id, AddressUpdateRequest request){
-
-        Optional<Address> address = addressRepository.findById(id);
-
-        if(address.isEmpty()){
-            throw new BusinessException(AddressMessages.NO_ADDRESS_FOUND);
-        }
-
-        Address addressUpdated = address.get();
-
+    public AddressUpdateResponse update(int id, AddressUpdateRequest request) {
+        Address addressUpdated = searchAddressByIdOrThrowExceptionIfNotFound(id);
         AddressMapper.INSTANCE.updateAddressField(addressUpdated, request);
-
         addressUpdated = addressRepository.save(addressUpdated);
-
         return AddressMapper.INSTANCE.addressUpdateResponseFromAddress(addressUpdated);
     }
 
     @Override
-    public void makePrimary(Integer id){
-        Optional<Address> address = addressRepository.findById(id);
-        if(address.isEmpty()){
-            throw new BusinessException(AddressMessages.NO_ADDRESS_FOUND);
-        }
-
-        List<Address> addressList = addressRepository.findByCustomerId(address.get().getCustomer().getId());
-        for (Address a : addressList) {
-            if(a.isPrimary()==true){
-                a.setPrimary(false);
-                addressRepository.save(a);
-                break;
-            }
-        }
-
-        Address addressUpdated = address.get();
-        addressUpdated.setPrimary(true);
-        addressRepository.save(addressUpdated);
+    public void makePrimary(Integer newPrimaryAddressId) {
+        dropOldPrimaryAddressAndMarkNewPrimaryAddress(
+                addressRepository.findFirstCustomerIdByAddressId(newPrimaryAddressId).get(), newPrimaryAddressId);
     }
 
+    @Transactional
+    private void dropOldPrimaryAddressAndMarkNewPrimaryAddress(Integer customerId, Integer newPrimaryAddressId) {
+        addressRepository.removeAllPrimaryAddressesByCustomerId(customerId);
+        addressRepository.markAsPrimary(newPrimaryAddressId);
+    }
 
+    private Address searchAddressByIdOrThrowExceptionIfNotFound(Integer id) {
+        return addressRepository.findById(id).orElseThrow(
+                () -> BusinessExceptionFactory.createWithMessage(AddressMessages.NO_ADDRESS_FOUND));
+    }
+
+    private void checkIfAddressExistsOrThrowException(Integer id) {
+        if (!addressRepository.existsById(id)) {
+            throw BusinessExceptionFactory.createWithMessage(AddressMessages.NO_ADDRESS_FOUND);
+        }
+    }
 }

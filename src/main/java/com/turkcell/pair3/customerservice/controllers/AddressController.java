@@ -7,6 +7,7 @@ import com.turkcell.pair3.customerservice.services.dtos.responses.AddressUpdateR
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,22 +19,26 @@ public class AddressController {
     private final AddressService addressService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Integer save(@RequestBody @Valid AddressAddRequest request) {
         return addressService.save(request);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @NotNull Integer id){
         addressService.delete(id);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public AddressUpdateResponse update(@PathVariable @NotNull Integer id, @RequestBody @Valid AddressUpdateRequest request){
         return addressService.update(id, request);
     }
 
     @PatchMapping("/{id}")
-    public void makeAddressPrimary(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void makeAddressPrimary(@PathVariable @NotNull Integer id) {
         addressService.makePrimary(id);
     }
 }

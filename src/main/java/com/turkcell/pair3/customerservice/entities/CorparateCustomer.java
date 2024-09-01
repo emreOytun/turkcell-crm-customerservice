@@ -7,16 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "corparate_customer")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CorparateCustomer extends Customer{
+public class CorparateCustomer extends Customer {
 
     private String companyName;
-
 }
