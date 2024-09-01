@@ -45,7 +45,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public void makePrimary(Integer newPrimaryAddressId) {
         dropOldPrimaryAddressAndMarkNewPrimaryAddress(
-                addressRepository.findFirstCustomerIdByAddressId(newPrimaryAddressId).get(), newPrimaryAddressId);
+                addressRepository.findFirstCustomerIdByAddressId(newPrimaryAddressId).orElseGet(null), newPrimaryAddressId);
     }
 
     @Transactional
