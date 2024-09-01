@@ -47,8 +47,7 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
         customer.setCustomerId(UUID.randomUUID().toString());
         customer.setState(EnumState.ACTIVE);
 
-        Integer userId = authServiceClient.register(RegisterEventFactory.create(individualCustomerAddRequest.getEmail(), individualCustomerAddRequest.getPassword()));
-        customer.setUserId(userId);
+        customer.setUserId(authServiceClient.register(RegisterEventFactory.create(individualCustomerAddRequest.getEmail(), individualCustomerAddRequest.getPassword())));
         individualCustomerRepository.save(customer);
         productClient.createCart(customer.getId());
 
@@ -63,7 +62,7 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
     }
 
     @Override
-    public IndividualCustomerInfoResponse getCustomerInfo(String customerId){
+    public IndividualCustomerInfoResponse getCustomerInfo(String customerId) {
         return IndividualCustomerMapper.INSTANCE.individualCustomerInfoResponseFromCustomer(
                 individualCustomerRepository.findByCustomerId(customerId).orElseThrow(
                         () -> BusinessExceptionFactory.createWithMessage(CustomerMessages.NO_CUSTOMER_FOUND)));
