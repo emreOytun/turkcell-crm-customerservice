@@ -43,12 +43,6 @@ public class CustomerController {
         return individualCustomerService.getCustomerInfo(customerId);
     }
 
-//    @GetMapping("getInfo")
-//    public List<IndividualCustomerInfoResponse> getAll(SearchByPageRequest searchByPageRequest)
-//    {
-//        return customerService.getAll();
-//    }
-
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public IndividualCustomerInfoResponse updateCustomer(@PathVariable @NotNull Integer id, @RequestBody @Valid IndividualCustomerUpdateRequest request) {
