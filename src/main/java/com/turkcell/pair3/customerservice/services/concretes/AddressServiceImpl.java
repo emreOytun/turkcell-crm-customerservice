@@ -18,10 +18,11 @@ import org.springframework.stereotype.Service;
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
     @Override
     public Integer save(AddressAddRequest request) {
-        Address address = AddressMapper.INSTANCE.addressFromAddRequest(request);
+        Address address = addressMapper.addressFromAddRequest(request);
         if (!addressRepository.existsPrimaryAddressByCustomerId(address.getCustomer().getId())) {
             address.setPrimary(true);
         }
@@ -37,15 +38,15 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressUpdateResponse update(int id, AddressUpdateRequest request) {
         Address addressUpdated = searchAddressByIdOrThrowExceptionIfNotFound(id);
-        AddressMapper.INSTANCE.updateAddressField(addressUpdated, request);
+        addressMapper.updateAddressField(addressUpdated, request);
         addressUpdated = addressRepository.save(addressUpdated);
-        return AddressMapper.INSTANCE.addressUpdateResponseFromAddress(addressUpdated);
+        return addressMapper.addressUpdateResponseFromAddress(addressUpdated);
     }
 
     @Override
     public void makePrimary(Integer newPrimaryAddressId) {
         dropOldPrimaryAddressAndMarkNewPrimaryAddress(
-                addressRepository.findFirstCustomerIdByAddressId(newPrimaryAddressId).orElseGet(null), newPrimaryAddressId);
+                addressRepository.findFirstCustomerIdByAddressId(newPrimaryAddressId).orElseGet(() -> null), newPrimaryAddressId);
     }
 
     @Transactional

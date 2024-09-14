@@ -38,19 +38,20 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
     private final OrderServiceClient orderServiceClient;
     private final AuthServiceClient authServiceClient;
     private final ProductClient productClient;
+    private final IndividualCustomerMapper individualCustomerMapper;
 
     @Override
     public IndividualCustomerAddResponse saveCustomer(IndividualCustomerAddRequest individualCustomerAddRequest) {
         checkIfNationalityIdNotSavedBeforeOrThrowException(individualCustomerAddRequest.getNationalityId());
 
-        IndividualCustomer customer = IndividualCustomerMapper.INSTANCE.individualCustomerFromAddRequest(individualCustomerAddRequest);
+        IndividualCustomer customer = individualCustomerMapper.individualCustomerFromAddRequest(individualCustomerAddRequest);
         customer.setCustomerId(UUID.randomUUID().toString());
         customer.setState(EnumState.ACTIVE);
         customer.setUserId(authServiceClient.register(RegisterEventFactory.create(individualCustomerAddRequest.getEmail(), individualCustomerAddRequest.getPassword())));
         individualCustomerRepository.save(customer);
         productClient.createCart(customer.getId());
 
-        return IndividualCustomerMapper.INSTANCE.individualCustomerAddResponseFromCustomer(customer);
+        return individualCustomerMapper.individualCustomerAddResponseFromCustomer(customer);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
 
     @Override
     public IndividualCustomerInfoResponse getCustomerInfo(String customerId) {
-        return IndividualCustomerMapper.INSTANCE.individualCustomerInfoResponseFromCustomer(
+        return individualCustomerMapper.individualCustomerInfoResponseFromCustomer(
                 individualCustomerRepository.findByCustomerId(customerId).orElseThrow(
                         () -> BusinessExceptionFactory.createWithMessage(CustomerMessages.NO_CUSTOMER_FOUND)));
     }
@@ -70,7 +71,7 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
     @Override
     public List<IndividualCustomerInfoResponse> getAll(SearchByPageRequest searchByPageRequest) {
         Pageable pageable = PageRequest.of(searchByPageRequest.getPageNo(), searchByPageRequest.getPageSize());
-        return IndividualCustomerMapper.INSTANCE.individualCustomerInfoResponsesFromCustomers(
+        return individualCustomerMapper.individualCustomerInfoResponsesFromCustomers(
                 individualCustomerRepository.findAll(pageable).stream().toList());
     }
 
@@ -88,8 +89,8 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
             throw BusinessExceptionFactory.createWithMessage(CustomerMessages.NATIONALITY_ID_ALREADY_EXISTS);
         }
 
-        IndividualCustomerMapper.INSTANCE.updateIndividualCustomerField(updatedCustomer, request);
-        return IndividualCustomerMapper.INSTANCE.individualCustomerInfoResponseFromCustomer(individualCustomerRepository.save(updatedCustomer));
+        individualCustomerMapper.updateIndividualCustomerField(updatedCustomer, request);
+        return individualCustomerMapper.individualCustomerInfoResponseFromCustomer(individualCustomerRepository.save(updatedCustomer));
     }
 
     @Override
@@ -102,7 +103,7 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
 
         customer.setState(EnumState.PASSIVE);
         individualCustomerRepository.save(customer);
-        return IndividualCustomerMapper.INSTANCE.individualCustomerDeleteResponseFromCustomer(customer);
+        return individualCustomerMapper.individualCustomerDeleteResponseFromCustomer(customer);
     }
 
     @Override

@@ -16,10 +16,11 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CityServiceImpl implements CityService {
     private final CityRepository cityRepository;
+    private final CityMapper cityMapper;
 
     @Override
     public Integer save(CityAddRequest request) {
-        return cityRepository.save(CityMapper.INSTANCE.cityFromAddRequest(request)).getId();
+        return cityRepository.save(cityMapper.cityFromAddRequest(request)).getId();
     }
 
     @Override
@@ -42,8 +43,8 @@ public class CityServiceImpl implements CityService {
     @Override
     public CityUpdateResponse update(int id, CityUpdateRequest request) {
         City updatedCity = searchCityByIdOrThrowExceptionIfNotFound(id);
-        CityMapper.INSTANCE.updateCityField(updatedCity, request);
+        cityMapper.updateCityField(updatedCity, request);
         updatedCity = cityRepository.save(updatedCity);
-        return CityMapper.INSTANCE.cityUpdateResponseFromCity(updatedCity);
+        return cityMapper.cityUpdateResponseFromCity(updatedCity);
     }
 }
