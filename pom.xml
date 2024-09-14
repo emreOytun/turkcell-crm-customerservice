@@ -17,6 +17,7 @@
 		<java.version>17</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<jacoco-maven-plugin>0.8.11</jacoco-maven-plugin>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -106,6 +107,12 @@
 			<version>5.5.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Jacoco for code coverage analysis in SonarQube -->
+		<dependency>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>${jacoco-maven-plugin}</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -130,6 +137,30 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.8.0.2131</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-maven-plugin}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
