@@ -46,7 +46,6 @@ public class IndividualCustomerServiceImpl implements IndividualCustomerService 
         IndividualCustomer customer = IndividualCustomerMapper.INSTANCE.individualCustomerFromAddRequest(individualCustomerAddRequest);
         customer.setCustomerId(UUID.randomUUID().toString());
         customer.setState(EnumState.ACTIVE);
-
         customer.setUserId(authServiceClient.register(RegisterEventFactory.create(individualCustomerAddRequest.getEmail(), individualCustomerAddRequest.getPassword())));
         individualCustomerRepository.save(customer);
         productClient.createCart(customer.getId());
