@@ -22,5 +22,6 @@ public interface AddressMapper {
     @Mapping(target="id", ignore=true)
     void updateAddressField(@MappingTarget Address address, AddressUpdateRequest request);
 
+    @Mapping(target = "cityId", source = "address.city.id")
     AddressUpdateResponse addressUpdateResponseFromAddress(Address address);
 }
