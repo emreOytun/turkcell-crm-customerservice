@@ -18,6 +18,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8083  # Updated to match the application's port
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
       imagePullSecrets:
         - name: regcred
 ---
